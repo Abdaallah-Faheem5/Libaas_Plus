@@ -1,5 +1,5 @@
-import  db  from "../../src/configs/db.config.js";
-import { users } from "../../src/db/schema.js";
+import db from "../configs/db.config.js";
+import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
 // Get user profile
@@ -33,7 +33,6 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
-    const file = req.file;
     const updates = {};
 
     const existing = await db
@@ -48,13 +47,9 @@ export const updateProfile = async (req, res) => {
     if (firstName !== undefined) updates.firstName = firstName;
     if (lastName !== undefined) updates.lastName = lastName;
     if (email !== undefined) updates.email = email;
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required" });
+    if (req.file) {
+      updates.imageUrl = `/uploads/${req.file.filename}`;
     }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
-
-    updates.imageUrl = imageUrl;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
@@ -62,12 +57,10 @@ export const updateProfile = async (req, res) => {
 
     await db.update(users).set(updates).where(eq(users.id, req.user.id));
 
-    const updated = await db
+    const [user] = await db
       .select()
       .from(users)
       .where(eq(users.id, req.user.id));
-
-    const user = updated[0];
 
     return res.json({
       message: "Profile updated",

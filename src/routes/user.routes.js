@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import {
   getProfile,
   updateProfile,
+  
 } from "../controllers/user.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 
