@@ -1,5 +1,5 @@
-import { db } from "../../src/configs/db.config.js";
-import { users } from "../../schema/users.js";
+import  db  from "../../src/configs/db.config.js";
+import { users } from "../../src/db/schema.js";
 import { eq } from "drizzle-orm";
 
 // Get user profile
@@ -52,7 +52,7 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    const imageUrl = `/uploads/${filename}`;
+    const imageUrl = `/uploads/${req.file.filename}`;
 
     updates.imageUrl = imageUrl;
 
@@ -86,31 +86,31 @@ export const updateProfile = async (req, res) => {
   }
 };
 // Update profile image
-export const updateProfileImage = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required" });
-    }
+// export const updateProfileImage = async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Image file is required" });
+//     }
 
-    const found = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, req.user.id));
+//     const found = await db
+//       .select()
+//       .from(users)
+//       .where(eq(users.id, req.user.id));
 
-    if (found.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (found.length === 0) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+//     const imageUrl = `/uploads/${req.file.filename}`;
 
-    await db.update(users).set({ imageUrl }).where(eq(users.id, req.user.id));
+//     await db.update(users).set({ imageUrl }).where(eq(users.id, req.user.id));
 
-    return res.json({
-      message: "Profile image updated",
-      imageUrl,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Server error" });
-  }
-};
+//     return res.json({
+//       message: "Profile image updated",
+//       imageUrl,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ error: "Server error" });
+//   }
+// };

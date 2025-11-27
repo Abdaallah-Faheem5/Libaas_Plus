@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { sql } from "drizzle-orm";
 import app from "./app.js";
-import { db } from "../drizzle/db.js";
+import  db  from "./configs/db.config.js";
 
 
 async function startServer() {

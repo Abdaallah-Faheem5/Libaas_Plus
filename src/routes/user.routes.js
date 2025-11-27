@@ -3,12 +3,15 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import { getProfile , updateProfile , updateProfileImage } from "../controllers/user.controller.js";
+import {
+  getProfile,
+  updateProfile,
+} from "../controllers/user.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, "..", "..", "uploads");
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+const uploadsDir = path.join(dirname, "..", "..", "uploads");
 
 fs.mkdirSync(uploadsDir, { recursive: true });
 // Multer storage configuration
@@ -42,17 +45,6 @@ const upload = multer({
 const router = Router();
 
 router.get("/me", authenticate, getProfile);
-router.put("/me", authenticate, updateProfile);
-
-const uploadImage = upload.single("image");
-router.post("/me/photo", authenticate, (req, res, next) => {
-  uploadImage(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
-
-    return updateProfileImage(req, res, next);
-  });
-});
+router.put("/me", authenticate, upload.single("photo"), updateProfile);
 
 export default router;
