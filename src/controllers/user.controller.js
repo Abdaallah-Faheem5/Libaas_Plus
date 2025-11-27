@@ -52,7 +52,7 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    const imageUrl = `/uploads/${filename}`;
+    const imageUrl = `/uploads/${req.file.filename}`;
 
     updates.imageUrl = imageUrl;
 
