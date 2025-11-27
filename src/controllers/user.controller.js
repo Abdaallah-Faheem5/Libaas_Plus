@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 // Get user profile
 export const getProfile = async (req, res) => {
   try {
-    const found = await db.select().from(users).where(eq(users.id, req.user.id));
+    const found = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, req.user.id));
 
     if (found.length === 0) {
       return res.status(404).json({ message: "User not found" });
@@ -29,7 +32,8 @@ export const getProfile = async (req, res) => {
 // Update user profile
 export const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, email} = req.body;
+    const { firstName, lastName, email } = req.body;
+    const file = req.file;
     const updates = {};
 
     const existing = await db
@@ -44,6 +48,13 @@ export const updateProfile = async (req, res) => {
     if (firstName !== undefined) updates.firstName = firstName;
     if (lastName !== undefined) updates.lastName = lastName;
     if (email !== undefined) updates.email = email;
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    const imageUrl = `/uploads/${filename}`;
+
+    updates.imageUrl = imageUrl;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
@@ -81,7 +92,10 @@ export const updateProfileImage = async (req, res) => {
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    const found = await db.select().from(users).where(eq(users.id, req.user.id));
+    const found = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, req.user.id));
 
     if (found.length === 0) {
       return res.status(404).json({ message: "User not found" });
@@ -89,10 +103,7 @@ export const updateProfileImage = async (req, res) => {
 
     const imageUrl = `/uploads/${req.file.filename}`;
 
-    await db
-      .update(users)
-      .set({ imageUrl })
-      .where(eq(users.id, req.user.id));
+    await db.update(users).set({ imageUrl }).where(eq(users.id, req.user.id));
 
     return res.json({
       message: "Profile image updated",

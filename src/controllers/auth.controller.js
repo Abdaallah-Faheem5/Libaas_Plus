@@ -4,14 +4,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
 
-
 //register new user
 export const register = async (req, res) => {
   try {
-    const { firstName,lastName, email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     // check existing user
-    const existing = await db.select().from(users).where(eq(users.email, email));
+    const existing = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
 
     if (existing.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
@@ -53,7 +55,10 @@ export const login = async (req, res) => {
     if (user.provider === "google") {
       return res
         .status(400)
-        .json({ message: "This account uses Google sign-in. Use Google login instead." });
+        .json({
+          message:
+            "This account uses Google sign-in. Use Google login instead.",
+        });
     }
 
     const match = await bcrypt.compare(password, user.passwordHash);
@@ -83,10 +88,8 @@ export const login = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 };
-
